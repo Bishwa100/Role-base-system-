@@ -6,7 +6,6 @@ import uuid
 from models import SearchRequest, SearchResponse, JobStatus
 from database import init_db, create_job, get_job
 from tasks import celery_app, scrape_topic_task, AVAILABLE_SOURCES
-import google_api
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -41,11 +40,10 @@ async def root():
 async def get_config():
     """
     Get API configuration and capabilities.
-    Returns available search modes, platforms, and API availability.
+    Returns available search modes and platforms.
     """
     return {
-        "google_api_available": google_api.is_api_available(),
-        "search_modes": ["scraping", "api"],
+        "search_modes": ["scraping"],
         "default_mode": "scraping",
         "available_sources": AVAILABLE_SOURCES,
         "source_descriptions": {
@@ -142,17 +140,12 @@ async def start_search(request: SearchRequest):
 
     Request body:
         topic: The search topic (required)
-        search_mode: "scraping" or "api" (optional, default: "scraping")
         sources: List of platforms to search (optional, default: all platforms)
                  Available: youtube, github, reddit, twitter, blogs, linkedin,
                            facebook, instagram, quora, events
     """
     if not request.topic or len(request.topic.strip()) < 2:
         raise HTTPException(status_code=400, detail="Topic must be at least 2 characters")
-
-    # Validate search_mode
-    if request.search_mode not in ["scraping", "api"]:
-        raise HTTPException(status_code=400, detail="search_mode must be 'scraping' or 'api'")
 
     # Validate sources if provided
     sources = request.sources
@@ -170,15 +163,14 @@ async def start_search(request: SearchRequest):
         sources = AVAILABLE_SOURCES
 
     topic = request.topic.strip()
-    search_mode = request.search_mode or "scraping"
     job_id = str(uuid.uuid4())
 
     # Create job in database
     create_job(job_id, topic)
 
-    # Dispatch Celery task with search_mode and sources
+    # Dispatch Celery task with selected sources
     scrape_topic_task.apply_async(
-        args=[topic, job_id, search_mode, sources],
+        args=[topic, job_id, sources],
         task_id=job_id
     )
 

@@ -13,26 +13,10 @@ const PLATFORM_OPTIONS = [
   { id: 'events', name: 'Events', icon: '📅' }
 ]
 
-export default function SearchBar({ onSearch, isLoading, apiUrl }) {
+export default function SearchBar({ onSearch, isLoading }) {
   const [topic, setTopic] = useState('')
-  const [searchMode, setSearchMode] = useState('scraping')
   const [selectedPlatforms, setSelectedPlatforms] = useState([])
   const [showOptions, setShowOptions] = useState(false)
-  const [apiAvailable, setApiAvailable] = useState(false)
-
-  // Check if API is available
-  useEffect(() => {
-    const checkApiAvailability = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/api/config`)
-        const config = await response.json()
-        setApiAvailable(config.google_api_available)
-      } catch (error) {
-        console.error('Failed to check API availability:', error)
-      }
-    }
-    checkApiAvailability()
-  }, [apiUrl])
 
   // Select all platforms by default
   useEffect(() => {
@@ -60,7 +44,6 @@ export default function SearchBar({ onSearch, isLoading, apiUrl }) {
     if (topic.trim() && !isLoading && selectedPlatforms.length > 0) {
       onSearch({
         topic: topic.trim(),
-        searchMode,
         sources: selectedPlatforms
       })
     }
@@ -91,48 +74,6 @@ export default function SearchBar({ onSearch, isLoading, apiUrl }) {
 
         {showOptions && (
           <div className="search-options">
-            {/* Search Mode Selection */}
-            <div className="option-section">
-              <h4 className="option-title">Search Method</h4>
-              <div className="mode-selector">
-                <label className={`mode-option ${searchMode === 'scraping' ? 'active' : ''}`}>
-                  <input
-                    type="radio"
-                    name="searchMode"
-                    value="scraping"
-                    checked={searchMode === 'scraping'}
-                    onChange={(e) => setSearchMode(e.target.value)}
-                    disabled={isLoading}
-                  />
-                  <div className="mode-content">
-                    <span className="mode-icon">🌐</span>
-                    <div>
-                      <strong>Web Scraping</strong>
-                      <small>Free • Slower</small>
-                    </div>
-                  </div>
-                </label>
-
-                <label className={`mode-option ${searchMode === 'api' ? 'active' : ''} ${!apiAvailable ? 'disabled' : ''}`}>
-                  <input
-                    type="radio"
-                    name="searchMode"
-                    value="api"
-                    checked={searchMode === 'api'}
-                    onChange={(e) => setSearchMode(e.target.value)}
-                    disabled={isLoading || !apiAvailable}
-                  />
-                  <div className="mode-content">
-                    <span className="mode-icon">⚡</span>
-                    <div>
-                      <strong>Google API</strong>
-                      <small>{apiAvailable ? 'Fast • Reliable' : 'Not Available'}</small>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
             {/* Platform Selection */}
             <div className="option-section">
               <div className="platform-header">

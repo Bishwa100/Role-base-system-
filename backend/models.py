@@ -4,7 +4,6 @@ from typing import Optional, List, Dict, Any
 
 class SearchRequest(BaseModel):
     topic: str
-    search_mode: Optional[str] = "scraping"  # "scraping" or "api"
     sources: Optional[List[str]] = None  # List of platforms to search, e.g., ["youtube", "reddit", "github"]
                                          # If None or empty, searches all platforms
 

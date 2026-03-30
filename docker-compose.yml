@@ -21,7 +21,6 @@ services:
       - OLLAMA_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=sorc/qwen3.5-claude-4.6-opus
       - DATABASE_URL=sqlite:///./topicLens.db
-      - SERPSHOT_API_KEY=5bff7fc157df396b31466b9f0951a485
       - DISPLAY=:99
     volumes:
       - ./backend:/app
@@ -36,7 +35,6 @@ services:
       - OLLAMA_URL=http://host.docker.internal:11434
       - OLLAMA_MODEL=sorc/qwen3.5-claude-4.6-opus
       - DATABASE_URL=sqlite:///./topicLens.db
-      - SERPSHOT_API_KEY=5bff7fc157df396b31466b9f0951a485
       - DISPLAY=:99
     volumes:
       - ./backend:/app
